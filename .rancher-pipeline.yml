@@ -1,0 +1,27 @@
+stages:
+- name: build
+  steps:
+  - runScriptConfig:
+      image: golang:latest
+      shellScript: "go env \ngo build main.go"
+    env:
+      CGO_ENABLED: "0"
+      GO111MODULE: "on"
+      GONOPROXY: none
+      GONOSUMDB: none
+      GOPROXY: direct,https://mirrors.aliyun.com/goproxy/,https://goproxy.cn
+      GOSUMDB: sum.golang.google.cn
+- name: docker build
+  steps:
+  - publishImageConfig:
+      dockerfilePath: ./Dockerfile
+      buildContext: .
+      tag: web_hook:v1.0.0.0
+      pushRemote: true
+      registry: index.docker.io
+- name: k8s
+  steps:
+  - applyYamlConfig:
+      path: ./deployment.yaml
+timeout: 60
+notification: {}
